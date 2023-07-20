@@ -1,7 +1,3 @@
-# The cluster autoscaler needs access to the AWS API to discover autoscaling groups and adjust desired settings on them
-# For that, we need to use IAM for service accounts. 
-# We'll deploy it in the "kube-system" namespace, and the K8s service account name is "cluster-autoscaler"
-
 data "aws_iam_openid_connect_provider" "this" {
   arn = var.openid_provider_arn
 }
@@ -33,8 +29,6 @@ resource "aws_iam_role" "cluster_autoscaler" {
 
 resource "aws_iam_policy" "cluster_autoscaler" {
   count = var.enable_cluster_autoscaler ? 1 : 0
-  # if the cluster autoscaler = true 
-  # then this policy will be attached to the IAM role "cluster_autoscaler"
 
   name = "${var.eks_name}-cluster-autoscaler"
 
@@ -77,10 +71,10 @@ resource "helm_release" "cluster_autoscaler" {
 
   name = "autoscaler"
 
-  repository = "https://kubernetes.github.io/autoscaler"
+  repository = "https://kubernetes.github.io/autoscaler" 
   chart      = "cluster-autoscaler"
   namespace  = "kube-system"
-  version    = var.cluster_autoscaler_helm_version
+  version    = var.cluster_autoscaler_helm_verion
 
   set {
     name  = "rbac.serviceAccount.name"
@@ -96,4 +90,4 @@ resource "helm_release" "cluster_autoscaler" {
     name  = "autoDiscovery.clusterName"
     value = var.eks_name
   }
-} 
+}
